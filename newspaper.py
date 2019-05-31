@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
 # 
 # A buggy web service in need of a database.
-from flask import Flask, request, redirect, url_for
-
-from newsdb import get_arts, get_authors, get_days
-
-app = Flask(__name__)
-
 # Database code for the DB Forum, full solution!
 
 import psycopg2
+
 
 DBNAME = "news"
 
@@ -35,7 +30,7 @@ def get_days():
   """Return all posts from the 'database', most recent first."""
   db = psycopg2.connect(database=DBNAME)
   c = db.cursor()
-  c.execute("select (to_char(log.time, 'Month DD, YYYY')) as day, (count(exp1.ref)/100) as error from(select time, count(id)*0.01 as ref from log group by time) as exp1 inner join log on log.time=exp1.time where status not like '200 OK' group by day order by (count(exp1.ref)/100) limit 1") 
+  c.execute("select day, round((((error/logs)::float)*100)::decimal,2) as error from (select exp1.day, (exp1.error::numeric), (exp2.logs::numeric) from ((select to_char(time, 'Month DD, YYYY') as day, count(ip) as error from log where status not like '200 OK' group by day) as exp1 inner join (select to_char(time, 'Month DD, YYYY') as day, count(ip) as logs from log group by day) as exp2 on exp1.day=exp2.day))as exp3 where (round((((error/logs)::float)*100)::decimal,2)>1)")
   days = c.fetchall()  
   db.close()
   return days
@@ -70,40 +65,42 @@ HTML_WRAP = '''\
 </html>
 '''
 
-# HTML template for an individual comment
-ART = '''\
-   <div class=post>
-    <ul>
-    <li>%s<i>--%sviews</i></li>
-    </ul>
-    </div>   
-'''
-Author = '''\
-   <div class=post>
-    <ul>
-    <li>%s<i>--%sviews</i></li>
-    </ul>
-    </div>   
-'''
-Day = '''\
-   <div class=post>
-    <ul>
-    <li>%s<i>--%s&#37error</i></li>
-    </ul>
-    </div>      
-'''
+### HTML template for an individual comment
+##ART = '''\
+##   <div class=post>
+##    <ul>
+##    <li>%s<i>--%sviews</i></li>
+##    </ul>
+##    </div>   
+##'''
+##Author = '''\
+##   <div class=post>
+##    <ul>
+##    <li>%s<i>--%sviews</i></li>
+##    </ul>
+##    </div>   
+##'''
+##Day = '''\
+##   <div class=post>
+##    <ul>
+##    <li>%s<i>--%s&#37error</i></li>
+##    </ul>
+##    </div>      
+##'''
 
-@app.route('/', methods=['GET'])
+
 def main():
   '''Return all posts from the 'database', most recent first.'''
-  arts = "".join(ART % (text, error) for text, error in get_arts())
-  authors = "".join(Author % (name, views) for name, views in get_authors())
-  days = "".join(Day % (day, error) for day, error in get_days()) 
-  html = HTML_WRAP %(arts, authors, days)
-  return html
+  arts = get_arts()
+  authors = get_authors()
+  days = get_days() 
+  return arts, authors,days
+print(main())
 
 
 
-if __name__ == '__main__':
-  app.run(host='0.0.0.0', port=8000)
+
+
+
+  
 

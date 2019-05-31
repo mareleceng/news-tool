@@ -25,7 +25,9 @@ Either way, you will end up with a new directory containing the VM files. Change
               marwa@DESKTOP-640PB0R MINGW64 ~/Downloads/fullstack-nanodegree-vm-master/fullstack-nanodegree-vm-master/vagrant (master)
               $ vagrant up
 2-
-Download folder project from  https://github.com/mareleceng/news-tool and then you will need to unzip this file after downloading it. The file inside is called newsdata.sql. Put this file into the vagrant directory, which is shared with your virtual machine.To build the reporting tool, you'll need to load the site's data into your local database. To load the data, cd into the vagrant directory and use the command cd into folder of project then run psql -d news -f newsdata.sql.
+Download folder project from  https://github.com/mareleceng/news-tool and then you will need to unzip this file after downloading it. 
+
+3- Download folder the source of psql database source file to run into vagrant folder shared from https://d17h27t6h515a5.cloudfront.net/topher/2016/August/57b5f748_newsdata/newsdata.zip The file inside is called newsdata.sql. Put this file into the vagrant directory, which is shared with your virtual machine.To build the reporting tool, you'll need to load the site's data into your local database. To load the data, cd into the vagrant directory and use the command cd into folder of project then run psql -d news -f newsdata.sql.
 Here's what this command does:
 psql — the PostgreSQL command line program
 -d news — connect to the database named news which has been set up for you
